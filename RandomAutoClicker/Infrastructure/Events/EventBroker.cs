@@ -5,53 +5,32 @@ namespace RandomAutoClicker.Infrastructure.Events
 {
     public sealed class EventBroker<TArgs> : IEventBroker<TArgs>
     {
-        private static object syncRoot = new Object();
-        private readonly Dictionary<string, List<Action<TArgs>>> callbacks;
+        private readonly IDictionary<string, List<Action<TArgs>>> _callbacks;
 
-        private EventBroker()
+        public EventBroker()
         {
-            callbacks = new Dictionary<string, List<Action<TArgs>>>();
-        }
-
-        private static EventBroker<TArgs> _instance;
-        public static EventBroker<TArgs> Instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    lock (syncRoot)
-                    {
-                        if (_instance == null)
-                        {
-                            _instance = new EventBroker<TArgs>();
-                        }
-                    }
-                }
-
-                return _instance;
-            }
+            _callbacks = new Dictionary<string, List<Action<TArgs>>>();
         }
 
         public void Subscribe(string eventName, Action<TArgs> callback)
         {
-            if (!callbacks.ContainsKey(eventName))
-                callbacks.Add(eventName, new List<Action<TArgs>>());
+            if (!_callbacks.ContainsKey(eventName))
+                _callbacks.Add(eventName, new List<Action<TArgs>>());
 
-            callbacks[eventName].Add(callback);
+            _callbacks[eventName].Add(callback);
         }
 
         public void Unsubscribe(string eventName, Action<TArgs> callback)
         {
-            if (!callbacks.ContainsKey(eventName))
+            if (!_callbacks.ContainsKey(eventName))
                 return;
 
-            callbacks[eventName].Remove(callback);
+            _callbacks[eventName].Remove(callback);
         }
 
         public void Unsubscribe(Action<TArgs> callback)
         {
-            foreach (var eventSubscribes in callbacks.Values)
+            foreach (var eventSubscribes in _callbacks.Values)
             {
                 eventSubscribes.Remove(callback);
             }
@@ -59,10 +38,10 @@ namespace RandomAutoClicker.Infrastructure.Events
 
         public void Raise(string eventName, TArgs eventArgs)
         {
-            if (!callbacks.ContainsKey(eventName))
+            if (!_callbacks.ContainsKey(eventName))
                 return;
 
-            foreach (var callback in callbacks[eventName])
+            foreach (var callback in _callbacks[eventName])
             {
                 callback?.Invoke(eventArgs);
             }

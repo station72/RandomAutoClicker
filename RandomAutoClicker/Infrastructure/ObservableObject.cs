@@ -3,7 +3,7 @@ using System.Windows.Input;
 
 namespace RandomAutoClicker.Infrastructure
 {
-    public class ObservableObject : INotifyPropertyChanged
+    public abstract class ObservableObject : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
 

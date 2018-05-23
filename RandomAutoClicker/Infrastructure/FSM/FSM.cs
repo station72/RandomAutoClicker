@@ -8,35 +8,38 @@ namespace RandomAutoClicker.Infrastructure.FSM
     public class Fsm : IFsm<ClickerEventArgs>
     {
         private readonly List<IState<ClickerEventArgs>> _states;
-        private IState<ClickerEventArgs> _currentState;
         private readonly IEventBroker<ClickerEventArgs> _eventBroker;
         private readonly ISubscribesContainer<ClickerEventArgs> _subscribesContainer;
+        private IState<ClickerEventArgs> _currentState;
 
         public Fsm(
-            IEventBroker<ClickerEventArgs> eventBroker,
-            ISubscribesContainer<ClickerEventArgs> subscribesContainer
+            IEventBroker<ClickerEventArgs> eventBroker
             )
         {
-            _eventBroker = eventBroker;
-            _subscribesContainer = subscribesContainer;
+            _eventBroker = eventBroker ?? throw new ArgumentNullException(nameof(eventBroker));
 
+            _subscribesContainer = new SubscribesContainer<ClickerEventArgs>(_eventBroker);
             _states = new List<IState<ClickerEventArgs>>();
 
+            InitStates();
+            Subscribe();
+        }
+
+        private void InitStates()
+        {
             AddState(new BindingState(_eventBroker));
             AddState(new IdleState(_eventBroker));
 
             MoveTo(typeof(IdleState));
-
-            Init();
         }
 
-        private void Init()
+        private void Subscribe()
         {
             _subscribesContainer.Subscribe(EventNames.KeyBindingStart, u => MoveTo(typeof(BindingState)));
             _subscribesContainer.Subscribe(EventNames.KeyBindingStop, u => MoveTo(typeof(IdleState)));
             _subscribesContainer.Subscribe(EventNames.KeyPressed, u =>
             {
-                Current().Handle(u);
+                CurrentState.Handle(u);
             });
         }
 
@@ -45,20 +48,44 @@ namespace RandomAutoClicker.Infrastructure.FSM
             _states.Add(state);
         }
 
-        public IState<ClickerEventArgs> Current()
+        public IState<ClickerEventArgs> CurrentState
         {
-            return _currentState;
+            get { return _currentState; }
+            set { _currentState = value; }
         }
 
         public void MoveTo(Type stateType)
         {
             var state = _states.First(u => u.GetType().Equals(stateType));
 
-            if (Current() != null)
-                Current().OnExit();
+            if (CurrentState != null)
+                CurrentState.OnExit();
 
-            _currentState = state;
-            Current().OnEnter();
+            CurrentState = state;
+            CurrentState.OnEnter();
+        }
+
+        private bool _disposed = false;
+        public void Dispose()
+        {
+            CleanUp(true);
+            GC.SuppressFinalize(this);
+        }
+
+        ~Fsm()
+        {
+            CleanUp(false);
+        }
+
+        private void CleanUp(bool isDisposing)
+        {
+            if (!_disposed)
+            {
+                if (isDisposing)
+                    _subscribesContainer.UnsubscribeAll();
+            }
+
+            _disposed = true;
         }
     }
 }

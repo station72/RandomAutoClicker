@@ -52,6 +52,12 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Castle.Core, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Core.4.2.0\lib\net45\Castle.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="Castle.Windsor, Version=4.0.0.0, Culture=neutral, PublicKeyToken=407dd0808d44fbdc, processorArchitecture=MSIL">
+      <HintPath>..\packages\Castle.Windsor.4.1.0\lib\net45\Castle.Windsor.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\packages\NUnit3TestAdapter.3.4.0\lib\Mono.Cecil.dll</HintPath>
       <Private>False</Private>
@@ -69,8 +75,11 @@
       <Private>False</Private>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Remoting" />
+    <Reference Include="System.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="Microsoft.CSharp" />
@@ -89,14 +98,13 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Infrastructure\ClickerContext.cs" />
     <Compile Include="Infrastructure\Converter\EnumBooleanConverter.cs" />
     <Compile Include="Infrastructure\Converter\InverseBooleanConverter.cs" />
     <Compile Include="Infrastructure\Events\ClickerEventArgs.cs" />
     <Compile Include="Infrastructure\Events\EventBroker.cs" />
-    <Compile Include="Infrastructure\Events\EventEntityFactory.cs" />
     <Compile Include="Infrastructure\Events\EventNames.cs" />
     <Compile Include="Infrastructure\Events\IEventBroker.cs" />
-    <Compile Include="Infrastructure\Events\IEventEntityFactory.cs" />
     <Compile Include="Infrastructure\Events\ISubscribesContainer.cs" />
     <Compile Include="Infrastructure\Events\SubscribesContainer.cs" />
     <Compile Include="Infrastructure\FSM\BindingState.cs" />
@@ -104,9 +112,19 @@
     <Compile Include="Infrastructure\FSM\IdleState.cs" />
     <Compile Include="Infrastructure\FSM\IFsm.cs" />
     <Compile Include="Infrastructure\FSM\IState.cs" />
+    <Compile Include="Infrastructure\IClickerContext.cs" />
+    <Compile Include="Infrastructure\IIocContainer.cs" />
+    <Compile Include="Infrastructure\IocContainer.cs" />
+    <Compile Include="Infrastructure\IocInstaller.cs" />
+    <Compile Include="Infrastructure\IViewDispatcher.cs" />
+    <Compile Include="Infrastructure\Keyboard\IKeyboardListener.cs" />
+    <Compile Include="Infrastructure\Keyboard\IKeyboardManager.cs" />
+    <Compile Include="Infrastructure\Keyboard\KeyboardManager.cs" />
+    <Compile Include="Infrastructure\Keyboard\RawKeyEventHandler.cs" />
     <Compile Include="Infrastructure\ObservableObject.cs" />
     <Compile Include="Infrastructure\Keyboard\InterceptKeys.cs" />
     <Compile Include="Infrastructure\Keyboard\KeyboardListener.cs" />
+    <Compile Include="Infrastructure\ViewDispatcher.cs" />
     <Compile Include="Model\AreaRect.cs" />
     <Compile Include="Model\Clicker\ClickBehaviour\ClickBehaviourBase.cs" />
     <Compile Include="Model\Clicker\ClickBehaviour\EmptyClickBehaviour.cs" />

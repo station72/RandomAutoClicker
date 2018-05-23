@@ -1,19 +1,17 @@
-﻿using RandomAutoClicker.Infrastructure.Events;
-using RandomAutoClicker.ViewModel;
+﻿using RandomAutoClicker.ViewModel;
+using System;
 using System.Windows;
-using System.Windows.Input;
 
 namespace RandomAutoClicker
 {
     public partial class MainWindow : Window
     {
-        private MainWindowViewModel _viewmodel;
-
-        public MainWindow()
+        public MainWindow(
+            MainWindowViewModel viewModel
+            )
         {
             InitializeComponent();
-            _viewmodel = new MainWindowViewModel(Dispatcher, new EventEntityFactory<ClickerEventArgs>());
-            DataContext = _viewmodel;
+            DataContext = viewModel ?? throw new NullReferenceException(nameof(viewModel));
         }
     }
 }

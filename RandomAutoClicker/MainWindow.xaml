@@ -6,7 +6,10 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" mc:Ignorable="d" x:Class="RandomAutoClicker.MainWindow"
         Title="RandomAutoClicker" Height="410" Width="725"
         ResizeMode="NoResize" >
-
+    <!--<Window.DataContext>
+        <local:MainWindowViewModel/>
+    </Window.DataContext>-->
+    
     <Window.Resources>
         <converters:EnumBooleanConverter x:Key="enumBooleanConverter"/>
         <converters:InverseBooleanConverter x:Key="inverseBooleanConverter"/>
@@ -28,7 +31,6 @@
                 <TextBlock FontWeight="Bold" Text="Where to Click?"/>
             </GroupBox.Header>
             <StackPanel IsEnabled="{Binding IsMenuEnabled}">
-                <!--<RadioButton IsChecked="{Binding IsUnderMouseClicker, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Wherever Mouse Cursor is when Starting the Mouse Click"></RadioButton>-->
                 <RadioButton IsChecked="{Binding ClickArea, ConverterParameter=FullScreen, Converter={StaticResource enumBooleanConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Content="Random Location anywhere on Total Desktop Area" Margin="0 10 0 0"/>
                 <RadioButton IsChecked="{Binding ClickArea, ConverterParameter=Area, Converter={StaticResource enumBooleanConverter}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" x:Name="RectAreaRadioButton" Content="Random Location within given below Rectangular Area"/>
                 <GroupBox IsEnabled="{Binding IsChecked, ElementName=RectAreaRadioButton}">

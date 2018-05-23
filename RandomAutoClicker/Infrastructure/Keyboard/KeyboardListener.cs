@@ -5,10 +5,9 @@ using System.Runtime.InteropServices;
 
 namespace RandomAutoClicker.Infrastructure.Keyboard
 {
-    public class KeyboardListener : IDisposable
+    public class KeyboardListener : IKeyboardListener
     {
         private static IntPtr hookId = IntPtr.Zero;
-
         public event RawKeyEventHandler KeyDown;
 
         public KeyboardListener()
@@ -46,14 +45,29 @@ namespace RandomAutoClicker.Infrastructure.Keyboard
 
         ~KeyboardListener()
         {
-            Dispose();
+            ClenUp(false);
         }
 
         #region IDisposable Members
 
+        private bool _disposed = false;
         public void Dispose()
         {
-            InterceptKeys.UnhookWindowsHookEx(hookId);
+            ClenUp(true);
+            GC.SuppressFinalize(this);
+        }
+
+        private void ClenUp(bool disposing)
+        {
+            if (!_disposed)
+            {
+                if (disposing)
+                {
+                    InterceptKeys.UnhookWindowsHookEx(hookId);
+                }
+            }
+
+            _disposed = true;
         }
 
         #endregion

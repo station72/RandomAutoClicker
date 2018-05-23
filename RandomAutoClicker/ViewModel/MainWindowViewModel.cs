@@ -6,29 +6,28 @@ using RandomAutoClicker.Model.Clicker.ClickBehaviour;
 using RandomAutoClicker.Model.Clicker.Config;
 using RandomAutoClicker.Model.Clicker.Interval;
 using System;
+using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 
 namespace RandomAutoClicker.ViewModel
 {
+    //TODO: try to split up class into couple of separate
     public class MainWindowViewModel : ObservableObject
     {
-        private readonly IEventEntityFactory<ClickerEventArgs> _eventEntityFactory;
         private readonly IEventBroker<ClickerEventArgs> _eventBroker;
         private readonly ISubscribesContainer<ClickerEventArgs> _subscribeContainer;
 
         private IMouseClicker _clicker;
-        private readonly Dispatcher _dispatcher;
         private readonly int _deltaValue;
 
-        public MainWindowViewModel(Dispatcher dispatcher, IEventEntityFactory<ClickerEventArgs> eventEntityFactory)
+        public MainWindowViewModel(
+            IEventBroker<ClickerEventArgs> eventBroker,
+            ISubscribesContainer<ClickerEventArgs> subscribeContainer)
         {
-            _dispatcher = dispatcher;
+            _eventBroker = eventBroker;
+            _subscribeContainer = subscribeContainer;
 
-            _eventEntityFactory = eventEntityFactory;
-            _eventBroker = _eventEntityFactory.GetEventBroker();
-            _subscribeContainer = _eventEntityFactory.GetSubscribeContainer(_eventBroker);
-
+            //TODO: move to constants
             _deltaValue = 10;
             _fixedDelayMin = 10;
             _fixedDelay = _fixedDelayMin;
@@ -40,6 +39,7 @@ namespace RandomAutoClicker.ViewModel
 
         private void InitArea()
         {
+            //TODO: move to constants
             Area = new AreaRect(10, 10)
             {
                 Height = 100,
@@ -51,12 +51,13 @@ namespace RandomAutoClicker.ViewModel
         {
             DelayRange = new Range
             {
+                //TODO: move to constants
                 To = 100,
                 From = 50
             };
         }
 
-        //TODO: save all value on exit
+        //TODO: save all values on exit
         private void Subscribe()
         {
             _subscribeContainer.Subscribe(EventNames.KeyPressHandled, (u) =>
@@ -84,6 +85,7 @@ namespace RandomAutoClicker.ViewModel
             });
         }
 
+        //TODO: move to constants
         private string _bindedKey = "F3";
         public string BindedKey
         {
@@ -135,7 +137,7 @@ namespace RandomAutoClicker.ViewModel
             set
             {
                 _isClickerWorking = value;
-                _dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     InvalidateRequerySuggested();
                 });
@@ -149,7 +151,7 @@ namespace RandomAutoClicker.ViewModel
             set
             {
                 _isKeyBindWorking = value;
-                _dispatcher.Invoke(() =>
+                Application.Current.Dispatcher.Invoke(() =>
                 {
                     RaisePropertyChangedEvent(nameof(IsKeyBindWorking));
                     InvalidateRequerySuggested();
