@@ -16,16 +16,19 @@ namespace RandomAutoClicker.ViewModel
     {
         private readonly IEventBroker<ClickerEventArgs> _eventBroker;
         private readonly ISubscribesContainer<ClickerEventArgs> _subscribeContainer;
+        private readonly IViewDispatcher _dispatcher;
 
         private IMouseClicker _clicker;
         private readonly int _deltaValue;
 
         public MainWindowViewModel(
             IEventBroker<ClickerEventArgs> eventBroker,
-            ISubscribesContainer<ClickerEventArgs> subscribeContainer)
+            ISubscribesContainer<ClickerEventArgs> subscribeContainer,
+            IViewDispatcher dispatcher)
         {
             _eventBroker = eventBroker;
             _subscribeContainer = subscribeContainer;
+            _dispatcher = dispatcher;
 
             //TODO: move to constants
             _deltaValue = 10;

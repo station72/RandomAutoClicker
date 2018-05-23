@@ -23,6 +23,7 @@ namespace RandomAutoClicker
 
         private void Application_Startup(object sender, StartupEventArgs e)
         {
+            _keyboardManager.StartHandleKeys();
         }
 
         private void Application_Exit(object sender, ExitEventArgs e)

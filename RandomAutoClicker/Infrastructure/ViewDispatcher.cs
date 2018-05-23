@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows;
 using System.Windows.Threading;
 
 namespace RandomAutoClicker.Infrastructure
@@ -6,9 +7,9 @@ namespace RandomAutoClicker.Infrastructure
     public class ViewDispatcher : IViewDispatcher
     {
         private readonly Dispatcher _targetDispatcher;
-        public ViewDispatcher(Dispatcher targetDispatcher)
+        public ViewDispatcher()
         {
-            _targetDispatcher = targetDispatcher;
+            _targetDispatcher = Application.Current.Dispatcher;
         }
 
         public void Invoke(Action callback)

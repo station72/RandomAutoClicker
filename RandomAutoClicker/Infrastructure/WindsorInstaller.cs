@@ -9,7 +9,7 @@ using System.Diagnostics;
 
 namespace RandomAutoClicker.Infrastructure
 {
-    public class IocInstaller : IWindsorInstaller
+    public class WindsorInstaller : IWindsorInstaller
     {
         public void Install(IWindsorContainer container, IConfigurationStore store)
         {
@@ -42,6 +42,10 @@ namespace RandomAutoClicker.Infrastructure
             container.Register(Component
                 .For<ISubscribesContainer<ClickerEventArgs>>().ImplementedBy<SubscribesContainer<ClickerEventArgs>>()
                 .LifeStyle.Transient);
+
+            container.Register(Component
+                .For<IViewDispatcher>().ImplementedBy<ViewDispatcher>()
+                .LifeStyle.Singleton);
         }
     }
 }

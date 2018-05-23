@@ -5,14 +5,14 @@ namespace RandomAutoClicker.Infrastructure
 {
     public class RelayCommand : ICommand
     {
-        Action<object> _execute;
-        Predicate<object> _canExecute;
+        private readonly Action<object> _execute;
+        private readonly Predicate<object> _canExecute;
 
         public RelayCommand(Action<object> execute) : this(execute, null) { }
 
         public RelayCommand(Action<object> execute, Predicate<object> canExecute)
         {
-            _execute = execute ?? throw new ArgumentNullException("");
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
         }
 

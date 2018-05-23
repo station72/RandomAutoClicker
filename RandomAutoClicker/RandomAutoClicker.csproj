@@ -115,7 +115,7 @@
     <Compile Include="Infrastructure\IClickerContext.cs" />
     <Compile Include="Infrastructure\IIocContainer.cs" />
     <Compile Include="Infrastructure\IocContainer.cs" />
-    <Compile Include="Infrastructure\IocInstaller.cs" />
+    <Compile Include="Infrastructure\WindsorInstaller.cs" />
     <Compile Include="Infrastructure\IViewDispatcher.cs" />
     <Compile Include="Infrastructure\Keyboard\IKeyboardListener.cs" />
     <Compile Include="Infrastructure\Keyboard\IKeyboardManager.cs" />
