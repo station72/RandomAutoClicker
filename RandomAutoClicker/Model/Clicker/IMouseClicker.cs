@@ -1,6 +1,6 @@
 ﻿namespace RandomAutoClicker.Model.Clicker
 {
-    interface IMouseClicker
+    public interface IMouseClicker
     {
         void Start();
         void Stop();

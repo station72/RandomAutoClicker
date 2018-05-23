@@ -2,21 +2,20 @@
 using RandomAutoClicker.Infrastructure.Events;
 using RandomAutoClicker.Model;
 using RandomAutoClicker.Model.Clicker;
-using RandomAutoClicker.Model.Clicker.ClickBehaviour;
-using RandomAutoClicker.Model.Clicker.Config;
-using RandomAutoClicker.Model.Clicker.Interval;
-using System;
+using RandomAutoClicker.Model.Clicker.Factory;
 using System.Windows;
 using System.Windows.Input;
 
 namespace RandomAutoClicker.ViewModel
 {
+    //TODO: descrease access level in the project
     //TODO: try to split up class into couple of separate
     public class MainWindowViewModel : ObservableObject
     {
         private readonly IEventBroker<ClickerEventArgs> _eventBroker;
         private readonly ISubscribesContainer<ClickerEventArgs> _subscribeContainer;
         private readonly IViewDispatcher _dispatcher;
+        private readonly IClickerFactory _clickerFactory;
 
         private IMouseClicker _clicker;
         private readonly int _deltaValue;
@@ -24,11 +23,13 @@ namespace RandomAutoClicker.ViewModel
         public MainWindowViewModel(
             IEventBroker<ClickerEventArgs> eventBroker,
             ISubscribesContainer<ClickerEventArgs> subscribeContainer,
-            IViewDispatcher dispatcher)
+            IViewDispatcher dispatcher,
+            IClickerFactory clickerFactory)
         {
             _eventBroker = eventBroker;
             _subscribeContainer = subscribeContainer;
             _dispatcher = dispatcher;
+            _clickerFactory = clickerFactory;
 
             //TODO: move to constants
             _deltaValue = 10;
@@ -63,29 +64,37 @@ namespace RandomAutoClicker.ViewModel
         //TODO: save all values on exit
         private void Subscribe()
         {
-            _subscribeContainer.Subscribe(EventNames.KeyPressHandled, (u) =>
-            {
-                IsKeyBindWorking = false;
-                BindedKey = u.Data.ToString();
-                _eventBroker.Raise(EventNames.KeyBindingStop, new ClickerEventArgs { Data = u.Data, Sender = this });
-            });
+            _subscribeContainer.Subscribe(EventNames.KeyPressHandled, OnKeyPressHandled);
 
-            _subscribeContainer.Subscribe(EventNames.ToggleClickerState, (u) =>
+            _subscribeContainer.Subscribe(EventNames.ToggleClickerState, OnToggleClickerState);
+        }
+
+        private void OnKeyPressHandled(ClickerEventArgs args)
+        {
+            IsKeyBindWorking = false;
+            BindedKey = args.Data.ToString();
+            _eventBroker.Raise(EventNames.KeyBindingStop, new ClickerEventArgs
             {
-                if (u.Data.ToString() == BindedKey)
+                Data = args.Data,
+                Sender = this
+            });
+        }
+
+        private void OnToggleClickerState(ClickerEventArgs args)
+        {
+            if (args.Data.ToString() == BindedKey)
+            {
+                if (!IsClickerWorking)
                 {
-                    if (!IsClickerWorking)
-                    {
-                        if (Start.CanExecute(null))
-                            Start.Execute(null);
+                    if (Start.CanExecute(null))
+                        Start.Execute(null);
 
-                        return;
-                    }
-
-                    if (Stop.CanExecute(null))
-                        Stop.Execute(null);
+                    return;
                 }
-            });
+
+                if (Stop.CanExecute(null))
+                    Stop.Execute(null);
+            }
         }
 
         //TODO: move to constants
@@ -314,61 +323,11 @@ namespace RandomAutoClicker.ViewModel
         }
         #endregion
 
-        #region Clicker resolver
         private IMouseClicker GetCurrentClicker()
         {
-            var interval = GetCurrentInterval(ClickDelay);
-            var area = GetCurrentArea(ClickArea);
-            var clickBehaviour = GetCurrentClickBehaviour();
-
-            return new Clicker(interval, area, clickBehaviour);
+            var clicker = _clickerFactory.CreateClicker(ClickDelay, ClickArea, ClickType);
+            return clicker;
         }
-
-        private BaseClickerConfig GetCurrentArea(ClickAreaEnum clickArea)
-        {
-            switch (clickArea)
-            {
-                case ClickAreaEnum.FullScreen:
-                    return new FullScreenClickerConfig();
-                case ClickAreaEnum.Area:
-                    return new AreaClickerConfig(Area.X, Area.Width, Area.Y, Area.Height);
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        private ClickBehaviourBase GetCurrentClickBehaviour()
-        {
-            switch (ClickType)
-            {
-                case ClickTypeEnum.None:
-                    return new EmptyClickBehaviour();
-                case ClickTypeEnum.LeftClick:
-                    return new LeftButtonClickBehaviour();
-                case ClickTypeEnum.RightClick:
-                    return new RightButtonClickBehaviour();
-                case ClickTypeEnum.LeftDoubleClick:
-                    return new DoubleClickBehaviour(new LeftButtonClickBehaviour());
-                case ClickTypeEnum.RightDoubleClick:
-                    return new DoubleClickBehaviour(new RightButtonClickBehaviour());
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-
-        private IClickerInterval GetCurrentInterval(ClickDelayEnum clickDelay)
-        {
-            switch (clickDelay)
-            {
-                case ClickDelayEnum.Random:
-                    return new RandomClickerInterval(DelayRange.From, DelayRange.To);
-                case ClickDelayEnum.Fixed:
-                    return new FixedClickerInterval(FixedDelay);
-                default:
-                    throw new NotImplementedException();
-            }
-        }
-        #endregion
 
         #region Delay Range
         public Range DelayRange { get; set; }
