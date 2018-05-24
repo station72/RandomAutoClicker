@@ -49,7 +49,7 @@ namespace RandomAutoClicker.Infrastructure
                 .LifeStyle.Singleton);
 
             container.Register(Component
-                .For<IClickerFactory>().ImplementedBy<IClickerFactory>()
+                .For<IClickerFactory>().ImplementedBy<ClickerFactory>()
                 .LifeStyle.Singleton);
 
             container.Register(Component
@@ -62,6 +62,18 @@ namespace RandomAutoClicker.Infrastructure
 
             container.Register(Component
                 .For<IClickerIntervalFactory>().ImplementedBy<ClickerIntervalFactory>()
+                .LifeStyle.Singleton);
+
+            container.Register(Component
+                .For<IAreaRectProvider>().ImplementedBy<AreaRectProvider>()
+                .LifeStyle.Singleton);
+
+            container.Register(Component
+                .For<IDelayRangeProvider>().ImplementedBy<DelayRangeProvider>()
+                .LifeStyle.Singleton);
+
+            container.Register(Component
+                .For<IFixedDelayProvider>().ImplementedBy<FixedDelayProvider>()
                 .LifeStyle.Singleton);
         }
     }

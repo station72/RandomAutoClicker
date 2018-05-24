@@ -17,6 +17,10 @@ namespace RandomAutoClicker.ViewModel
         private readonly IViewDispatcher _dispatcher;
         private readonly IClickerFactory _clickerFactory;
 
+        private readonly IDelayRangeProvider _delayRangeProvider;
+        private readonly IAreaRectProvider _areaRectProvider;
+        private readonly IFixedDelayProvider _fixedDelayProvider;
+
         private IMouseClicker _clicker;
         private readonly int _deltaValue;
 
@@ -24,17 +28,23 @@ namespace RandomAutoClicker.ViewModel
             IEventBroker<ClickerEventArgs> eventBroker,
             ISubscribesContainer<ClickerEventArgs> subscribeContainer,
             IViewDispatcher dispatcher,
-            IClickerFactory clickerFactory)
+            IClickerFactory clickerFactory,
+            IDelayRangeProvider delayRangeProvider,
+            IAreaRectProvider areaRectProvider,
+            IFixedDelayProvider fixedDelayProvider
+            )
         {
             _eventBroker = eventBroker;
             _subscribeContainer = subscribeContainer;
             _dispatcher = dispatcher;
             _clickerFactory = clickerFactory;
 
+            _delayRangeProvider = delayRangeProvider;
+            _areaRectProvider = areaRectProvider;
+            _fixedDelayProvider = fixedDelayProvider;
+
             //TODO: move to constants
             _deltaValue = 10;
-            _fixedDelayMin = 10;
-            _fixedDelay = _fixedDelayMin;
 
             InitArea();
             InitDelayRange();
@@ -43,29 +53,18 @@ namespace RandomAutoClicker.ViewModel
 
         private void InitArea()
         {
-            //TODO: move to constants
-            Area = new AreaRect(10, 10)
-            {
-                Height = 100,
-                Width = 100
-            };
+            Area = _areaRectProvider.GetAreaRect();
         }
 
         private void InitDelayRange()
         {
-            DelayRange = new Range
-            {
-                //TODO: move to constants
-                To = 100,
-                From = 50
-            };
+            DelayRange = _delayRangeProvider.GetDelayRange();
         }
 
         //TODO: save all values on exit
         private void Subscribe()
         {
             _subscribeContainer.Subscribe(EventNames.KeyPressHandled, OnKeyPressHandled);
-
             _subscribeContainer.Subscribe(EventNames.ToggleClickerState, OnToggleClickerState);
         }
 
@@ -382,21 +381,7 @@ namespace RandomAutoClicker.ViewModel
         #endregion
 
         #region Fixed delay
-        private int _fixedDelayMin;
-        private int _fixedDelay;
-        public int FixedDelay
-        {
-            get { return _fixedDelay; }
-            set
-            {
-                if (value < _fixedDelayMin)
-                    value = _fixedDelayMin;
-
-                _fixedDelay = value;
-                InvalidateRequerySuggested();
-                RaisePropertyChangedEvent(nameof(FixedDelay));
-            }
-        }
+        public FixedDelay FixedDelay { get; set; }
 
         private ICommand _fixedDelayUpCommand;
         public ICommand FixedDelayUpCommand
@@ -404,7 +389,7 @@ namespace RandomAutoClicker.ViewModel
             get
             {
                 return _fixedDelayUpCommand = new RelayCommand(
-                    (o) => FixedDelay += _deltaValue,
+                    (o) => FixedDelay.Delay += _deltaValue,
                     null
                 );
             }
@@ -416,8 +401,8 @@ namespace RandomAutoClicker.ViewModel
             get
             {
                 return _fixedDelayDownCommand ?? (_fixedDelayDownCommand = new RelayCommand(
-                    (o) => FixedDelay -= _deltaValue,
-                    (o) => FixedDelay > _fixedDelayMin
+                    (o) => FixedDelay.Delay -= _deltaValue,
+                    (o) => FixedDelay.Delay > FixedDelay.FixedDelayMin
                     ));
             }
         }

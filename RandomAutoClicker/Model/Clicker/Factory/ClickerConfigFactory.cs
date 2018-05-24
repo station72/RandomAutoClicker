@@ -1,16 +1,15 @@
 ﻿using RandomAutoClicker.Model.Clicker.Config;
-using RandomAutoClicker.ViewModel;
 using System;
 
 namespace RandomAutoClicker.Model.Clicker.Factory
 {
     public class ClickerConfigFactory : IClickerConfigFactory
     {
-        private readonly MainWindowViewModel _viewModel;
+        private readonly IAreaRectProvider _areaRectProvider;
 
-        public ClickerConfigFactory(MainWindowViewModel viewModel)
+        public ClickerConfigFactory(IAreaRectProvider areaRectProvider)
         {
-            _viewModel = viewModel;
+            _areaRectProvider = areaRectProvider;
         }
 
         public BaseClickerConfig CreateClickerConfig(ClickAreaEnum clickArea)
@@ -20,7 +19,8 @@ namespace RandomAutoClicker.Model.Clicker.Factory
                 case ClickAreaEnum.FullScreen:
                     return new FullScreenClickerConfig();
                 case ClickAreaEnum.Area:
-                    return new AreaClickerConfig(_viewModel.Area.X, _viewModel.Area.Width, _viewModel.Area.Y, _viewModel.Area.Height);
+                    var rectArea = _areaRectProvider.GetAreaRect();
+                    return new AreaClickerConfig(rectArea.X, rectArea.Width, rectArea.Y, rectArea.Height);
                 default:
                     throw new NotImplementedException();
             }

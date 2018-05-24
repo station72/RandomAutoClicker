@@ -4,19 +4,16 @@ namespace RandomAutoClicker.Model.Clicker.Factory
 {
     public class ClickerFactory : IClickerFactory
     {
-        public readonly MainWindowViewModel _viewModel;
         private readonly IClickerConfigFactory _clickerConfigFactory;
         private readonly IClickBehaviourFactory _clickBehaviourFactory;
         private readonly IClickerIntervalFactory _clickerIntervalFactory;
 
         public ClickerFactory(
-            MainWindowViewModel viewModel,
             IClickerConfigFactory clickerConfigFactory,
             IClickBehaviourFactory clickBehaviourFactory,
             IClickerIntervalFactory clickerIntervalFactory
             )
         {
-            _viewModel = viewModel;
             _clickerConfigFactory = clickerConfigFactory;
             _clickBehaviourFactory = clickBehaviourFactory;
             _clickerIntervalFactory = clickerIntervalFactory;
