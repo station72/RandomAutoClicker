@@ -154,6 +154,7 @@
     <Compile Include="Model\Clicker\IMouseClicker.cs" />
     <Compile Include="Model\Clicker\Interval\RandomClickerInterval.cs" />
     <Compile Include="Model\Clicker\ClickAreaEnum.cs" />
+    <Compile Include="Model\Constants.cs" />
     <Compile Include="Model\FixedDelay.cs" />
     <Compile Include="Model\Range.cs" />
     <Compile Include="Model\WpfScreen.cs" />

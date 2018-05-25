@@ -3,6 +3,7 @@ using RandomAutoClicker.Infrastructure.Events;
 using RandomAutoClicker.Model;
 using RandomAutoClicker.Model.Clicker;
 using RandomAutoClicker.Model.Clicker.Factory;
+using System;
 using System.Windows;
 using System.Windows.Input;
 
@@ -10,19 +11,17 @@ namespace RandomAutoClicker.ViewModel
 {
     //TODO: descrease access level in the project
     //TODO: try to split up class into couple of separate
-    public class MainWindowViewModel : ObservableObject
+    public class MainWindowViewModel : ObservableObject, IDisposable
     {
         private readonly IEventBroker<ClickerEventArgs> _eventBroker;
         private readonly ISubscribesContainer<ClickerEventArgs> _subscribeContainer;
         private readonly IViewDispatcher _dispatcher;
         private readonly IClickerFactory _clickerFactory;
-
         private readonly IDelayRangeProvider _delayRangeProvider;
         private readonly IAreaRectProvider _areaRectProvider;
         private readonly IFixedDelayProvider _fixedDelayProvider;
-
-        private IMouseClicker _clicker;
         private readonly int _deltaValue;
+        private IMouseClicker _clicker;
 
         public MainWindowViewModel(
             IEventBroker<ClickerEventArgs> eventBroker,
@@ -34,31 +33,25 @@ namespace RandomAutoClicker.ViewModel
             IFixedDelayProvider fixedDelayProvider
             )
         {
-            _eventBroker = eventBroker;
-            _subscribeContainer = subscribeContainer;
-            _dispatcher = dispatcher;
-            _clickerFactory = clickerFactory;
+            _eventBroker = eventBroker ?? throw new NullReferenceException(nameof(eventBroker));
+            _subscribeContainer = subscribeContainer ?? throw new NullReferenceException(nameof(subscribeContainer));
+            _dispatcher = dispatcher ?? throw new NullReferenceException(nameof(dispatcher));
+            _clickerFactory = clickerFactory ?? throw new NullReferenceException(nameof(clickerFactory));
+            _delayRangeProvider = delayRangeProvider ?? throw new NullReferenceException(nameof(delayRangeProvider));
+            _areaRectProvider = areaRectProvider ?? throw new NullReferenceException(nameof(areaRectProvider));
+            _fixedDelayProvider = fixedDelayProvider ?? throw new NullReferenceException(nameof(fixedDelayProvider));
 
-            _delayRangeProvider = delayRangeProvider;
-            _areaRectProvider = areaRectProvider;
-            _fixedDelayProvider = fixedDelayProvider;
+            _deltaValue = Constants.DeltaValue;
 
-            //TODO: move to constants
-            _deltaValue = 10;
-
-            InitArea();
-            InitDelayRange();
+            Init();
             Subscribe();
         }
 
-        private void InitArea()
+        private void Init()
         {
             Area = _areaRectProvider.GetAreaRect();
-        }
-
-        private void InitDelayRange()
-        {
             DelayRange = _delayRangeProvider.GetDelayRange();
+            FixedDelay = _fixedDelayProvider.GetFixedDelay();
         }
 
         //TODO: save all values on exit
@@ -96,8 +89,7 @@ namespace RandomAutoClicker.ViewModel
             }
         }
 
-        //TODO: move to constants
-        private string _bindedKey = "F3";
+        private string _bindedKey =  Constants.DefaultBindedKey;
         public string BindedKey
         {
             get { return _bindedKey; }
@@ -148,7 +140,7 @@ namespace RandomAutoClicker.ViewModel
             set
             {
                 _isClickerWorking = value;
-                Application.Current.Dispatcher.Invoke(() =>
+                _dispatcher.Invoke(() =>
                 {
                     InvalidateRequerySuggested();
                 });
@@ -162,7 +154,7 @@ namespace RandomAutoClicker.ViewModel
             set
             {
                 _isKeyBindWorking = value;
-                Application.Current.Dispatcher.Invoke(() =>
+                _dispatcher.Invoke(() =>
                 {
                     RaisePropertyChangedEvent(nameof(IsKeyBindWorking));
                     InvalidateRequerySuggested();
@@ -326,6 +318,11 @@ namespace RandomAutoClicker.ViewModel
         {
             var clicker = _clickerFactory.CreateClicker(ClickDelay, ClickArea, ClickType);
             return clicker;
+        }
+
+        public void Dispose()
+        {
+            _subscribeContainer.UnsubscribeAll();
         }
 
         #region Delay Range

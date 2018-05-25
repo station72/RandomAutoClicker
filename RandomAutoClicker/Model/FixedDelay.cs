@@ -17,7 +17,6 @@ namespace RandomAutoClicker.Model
 
         public int Delay
         {
-
             get { return _fixedDelay; }
             set
             {
